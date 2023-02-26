@@ -1,11 +1,12 @@
+import http from 'http';
 import cors from 'cors';
 import express from 'express';
-import http from 'http';
 import helmet from 'helmet';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import swaggerUi from 'swagger-ui-express';
 import swaggerDocument from '../swagger.json';
-import registerRoutes from './routes';
 import addErrorHandler from './middleware/error-handler';
+import registerRoutes from './routes';
 
 export default class App {
 	public express: express.Application;
@@ -66,12 +67,14 @@ export default class App {
 	private parseRequestHeader(
 		req: express.Request,
 		res: express.Response,
-		next: Function,
+		next: () => void,
 	): void {
 		// parse request header
 		// console.log(req.headers.access_token);
 		next();
 	}
+
+	
 
 	private basePathRoute(
 		request: express.Request,

@@ -9,3 +9,5 @@ declare global {
 export const setGlobalEnvironment = (environment: Environment): void => {
 	global.environment = environment;
 };
+
+export default setGlobalEnvironment;

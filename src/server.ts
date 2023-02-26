@@ -1,8 +1,8 @@
 import * as http from 'http';
 import { AddressInfo } from 'net';
-import { setGlobalEnvironment } from './global';
 import App from './App';
 import Environment from './environments/environment';
+import { setGlobalEnvironment } from './global';
 import logger from './lib/logger';
 
 const env: Environment = new Environment();
