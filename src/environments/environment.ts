@@ -6,7 +6,11 @@ import { EnvironmentFile, Environments } from './environment.constant';
 import IEnvironment from './environment.interface';
 
 class Environment implements IEnvironment {
-	public port: number;
+	public webPort: number;
+
+	public insecureWebPort: number;
+
+	public dataPort: number;
 
 	public secretKey: string;
 
@@ -21,8 +25,19 @@ class Environment implements IEnvironment {
 	constructor(NODE_ENV?: string) {
 		this.env = NODE_ENV || process.env.NODE_ENV || Environments.DEV;
 		this.setEnvironment(this.env);
-		const port: string | undefined | number = process.env.PORT || 3146;
-		this.port = Number(port);
+
+		const insecureWebPort: string | undefined | number =
+			process.env.WEB_HTTP_PORT || 80;
+		this.insecureWebPort = Number(insecureWebPort);
+
+		const webPort: string | undefined | number =
+			process.env.WEB_PORT || 443;
+		this.webPort = Number(webPort);
+
+		const dataPort: string | undefined | number =
+			process.env.JSON_PORT || 53847;
+		this.dataPort = Number(dataPort);
+
 		this.applyEncryption = JSON.parse(process.env.APPLY_ENCRYPTION);
 		this.secretKey = process.env.SECRET_KEY;
 	}

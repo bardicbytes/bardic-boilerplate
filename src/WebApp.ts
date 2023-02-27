@@ -1,6 +1,10 @@
-import http from 'http';
+import fs from 'fs';
+import https from 'https';
+import path from 'path';
 import cors from 'cors';
 import express from 'express';
+// import handlebars from 'handlebars';
+// import hbs from 'hbs';
 import helmet from 'helmet';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import swaggerUi from 'swagger-ui-express';
@@ -8,15 +12,19 @@ import swaggerDocument from '../swagger.json';
 import addErrorHandler from './middleware/error-handler';
 import registerRoutes from './routes';
 
-export default class App {
+const options = {
+	key: fs.readFileSync('server.key'),
+	cert: fs.readFileSync('server.cert'),
+};
+
+export default class WebApp {
 	public express: express.Application;
 
-	public httpServer: http.Server;
+	public httpsServer: https.Server;
 
 	public async init(): Promise<void> {
 		this.express = express();
-		this.httpServer = http.createServer(this.express);
-
+		this.httpsServer = https.createServer(options, this.express);
 		// add all global middleware like cors
 		this.middleware();
 
@@ -32,36 +40,39 @@ export default class App {
 		}
 	}
 
-	/**
-	 * here register your all routes
-	 */
 	private routes(): void {
 		this.express.get('/', this.basePathRoute);
-		this.express.get('/web', this.parseRequestHeader, this.basePathRoute);
 		this.express.use('/', registerRoutes());
 	}
 
-	/**
-	 * here you can apply your middlewares
-	 */
 	private middleware(): void {
-		// support application/json type post data
-		// support application/x-www-form-urlencoded post data
-		// Helmet can help protect your app from some well-known web vulnerabilities by setting HTTP headers appropriately.
 		this.express.use(helmet({ contentSecurityPolicy: false }));
 		this.express.use(express.json({ limit: '100mb' }));
 		this.express.use(
 			express.urlencoded({ limit: '100mb', extended: true }),
 		);
-		// add multiple cors options as per your use
+
+		// eslint-disable-next-line consistent-return
+		this.express.use((req, res, next) => {
+			if (!req.secure) {
+				return res.redirect(
+					['https://', req.get('Host'), req.url].join(''),
+				);
+			}
+			next();
+		});
+
 		const corsOptions = {
 			origin: [
-				'http://localhost:8080/',
-				'http://example.com/',
-				'http://127.0.0.1:3146',
+				'http://localhost:80/',
+				'https://localhost:443/',
+				'https://127.0.0.1:443',
 			],
 		};
 		this.express.use(cors(corsOptions));
+
+		this.express.set('view engine', 'hbs');
+		this.express.set('views', path.join(__dirname, 'views'));
 	}
 
 	private parseRequestHeader(
@@ -74,13 +85,20 @@ export default class App {
 		next();
 	}
 
-	
-
 	private basePathRoute(
 		request: express.Request,
 		response: express.Response,
 	): void {
-		response.json({ message: 'base path' });
+		const now = new Date();
+		const status = 'OK';
+		const data = {
+			name: 'User',
+			message: 'Welcome to the API',
+			status,
+			date: now.toISOString(),
+			version: '1.0.0',
+		};
+		response.render('home', data);
 	}
 
 	private setupSwaggerDocs(): void {

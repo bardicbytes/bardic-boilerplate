@@ -11,7 +11,7 @@
         "name": "node-boilerplate",
         "description": "Node Typescript Boilerplate"
     }],
-    "schemes": ["http", "https"],
+    "schemes": ["https"],
     "paths": {
         "/status/system": {
             "get": {

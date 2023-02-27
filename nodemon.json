@@ -6,7 +6,8 @@
       "node_modules"
     ],
     "watch": [
-      "src/**/*"
+      "src/**/*",
+      "views/**/*.hbs"
     ],
     "ext": "ts",
     "exec": "ts-node ./src/server.ts"

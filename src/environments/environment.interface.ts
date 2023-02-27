@@ -1,5 +1,6 @@
 interface IEnvironment {
-	port: number;
+	webPort: number;
+	dataPort: number;
 	secretKey: string;
 	applyEncryption: boolean;
 	getCurrentEnvironment(): string;
